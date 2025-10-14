@@ -1,0 +1,31 @@
+name: Permissions Smoke Test
+on: [workflow_dispatch, push]
+
+permissions:
+  contents: read
+  id-token: write
+  actions: read
+
+jobs:
+  perm-check:
+    runs-on: ubuntu-latest
+    environment: staging 
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read a repo secret (if present)
+        run: |
+          echo "SECRET length: ${#SECRET}"
+        env:
+          SECRET: ${{ secrets.SECRET }}   #dummy secret in repo settings
+
+      - name: Read a repo variable (if present)
+        run: echo "VAR=${VAR}"
+        env:
+          VAR: ${{ vars.VAR }}      #dummy variable in repo settings
+
+      - name: Show token scopes at runtime
+        run: |
+          echo "GITHUB_TOKEN permissions:"
+          curl -sI -H "Authorization: Bearer ${{ github.token }}" \
+            https://api.github.com/rate_limit | tr -d '\r'
