@@ -1,0 +1,153 @@
+name: Pull Request Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  pr-validation:
+    name: Validate PR Requirements
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check branch naming convention
+        run: |
+          BRANCH_NAME="${{ github.head_ref }}"
+          echo "Checking branch name: $BRANCH_NAME"
+          
+          # Allow these branch name patterns:
+          # - feature/*, bugfix/*, hotfix/*, release/*
+          # - username/feature-name (personal feature branches)
+          # - copilot/* (for GitHub Copilot)
+          
+          if [[ "$BRANCH_NAME" =~ ^(feature|bugfix|hotfix|release)/.+ ]] || \
+             [[ "$BRANCH_NAME" =~ ^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+ ]] || \
+             [[ "$BRANCH_NAME" =~ ^copilot/.+ ]]; then
+            echo "✅ Branch name follows convention"
+            exit 0
+          else
+            echo "❌ Branch name does not follow convention"
+            echo "Expected patterns:"
+            echo "  - feature/<feature-name>"
+            echo "  - bugfix/<bug-name>"
+            echo "  - hotfix/<hotfix-name>"
+            echo "  - release/<version>"
+            echo "  - <username>/<feature-name>"
+            exit 1
+          fi
+
+      - name: Check PR title format
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          echo "Checking PR title: $PR_TITLE"
+          
+          # Check if title follows conventional commit format (loosely)
+          if [[ "$PR_TITLE" =~ ^(feat|fix|docs|style|refactor|perf|test|chore|ci)(\(.+\))?:.+ ]]; then
+            echo "✅ PR title follows conventional commit format"
+          else
+            echo "⚠️  PR title should follow conventional commit format"
+            echo "Examples: feat: add new feature, fix: resolve bug, docs: update readme"
+            echo "This is a warning, not a failure."
+          fi
+
+      - name: Check PR description
+        run: |
+          PR_BODY="${{ github.event.pull_request.body }}"
+          
+          if [ -z "$PR_BODY" ]; then
+            echo "❌ PR description is empty"
+            echo "Please provide a description of your changes"
+            exit 1
+          else
+            echo "✅ PR description is provided"
+          fi
+
+      - name: Check for merge conflicts
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          
+          if git merge-tree $(git merge-base HEAD origin/${{ github.base_ref }}) HEAD origin/${{ github.base_ref }} | grep -q "<<<<<"; then
+            echo "❌ Merge conflicts detected"
+            echo "Please resolve conflicts with the base branch"
+            exit 1
+          else
+            echo "✅ No merge conflicts detected"
+          fi
+
+  commit-validation:
+    name: Validate Commit Messages
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate commit messages
+        run: |
+          echo "Checking commit messages..."
+          
+          # Get commits in this PR
+          BASE_SHA=${{ github.event.pull_request.base.sha }}
+          HEAD_SHA=${{ github.event.pull_request.head.sha }}
+          
+          COMMITS=$(git log --pretty=format:"%s" $BASE_SHA..$HEAD_SHA)
+          
+          if [ -z "$COMMITS" ]; then
+            echo "⚠️  No commits found to validate"
+            exit 0
+          fi
+          
+          VALID=true
+          
+          while IFS= read -r commit; do
+            echo "Checking: $commit"
+            
+            # Check if commit follows conventional commit format (loosely)
+            if [[ "$commit" =~ ^(feat|fix|docs|style|refactor|perf|test|chore|ci|revert|Merge)(\(.+\))?:.+ ]] || \
+               [[ "$commit" =~ ^Merge ]] || \
+               [[ "$commit" =~ ^Revert ]]; then
+              echo "  ✅ Valid"
+            else
+              echo "  ⚠️  Does not follow conventional commit format"
+              echo "     Expected: type(scope): description"
+              echo "     Example: feat: add new feature"
+              VALID=false
+            fi
+          done <<< "$COMMITS"
+          
+          if [ "$VALID" = false ]; then
+            echo ""
+            echo "⚠️  Some commit messages don't follow the conventional commit format"
+            echo "This is a warning. Consider following the format for better git history."
+          else
+            echo ""
+            echo "✅ All commit messages are valid"
+          fi
+
+  auto-label:
+    name: Auto Label PR
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Auto label based on files changed
+        uses: actions/labeler@v5
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}

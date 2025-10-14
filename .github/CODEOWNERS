@@ -1,0 +1,28 @@
+# CODEOWNERS
+# 
+# This file defines who is responsible for reviewing changes to specific parts of the codebase.
+# When a pull request is created, GitHub will automatically request reviews from the appropriate owners.
+#
+# Learn more about CODEOWNERS: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything in the repo
+# These owners will be requested for review when someone opens a pull request.
+* @CSE210-fa25-team09
+
+# You can specify owners for specific directories or file types:
+# Example:
+# /docs/ @CSE210-fa25-team09/docs-team
+# *.js @CSE210-fa25-team09/javascript-team
+# *.py @CSE210-fa25-team09/python-team
+# /src/api/ @CSE210-fa25-team09/backend-team
+# /src/ui/ @CSE210-fa25-team09/frontend-team
+
+# Configuration files (should be reviewed by maintainers)
+/.github/ @CSE210-fa25-team09
+*.yml @CSE210-fa25-team09
+*.yaml @CSE210-fa25-team09
+*.json @CSE210-fa25-team09
+
+# Documentation
+*.md @CSE210-fa25-team09
+/docs/ @CSE210-fa25-team09

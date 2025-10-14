@@ -1,0 +1,37 @@
+# Configuration for auto-labeling PRs based on changed files
+
+documentation:
+  - '**/*.md'
+  - 'docs/**/*'
+
+github-actions:
+  - '.github/workflows/**'
+  - '.github/**/*.yml'
+  - '.github/**/*.yaml'
+
+configuration:
+  - '**/*.json'
+  - '**/*.yml'
+  - '**/*.yaml'
+  - '**/*.toml'
+  - '**/*.ini'
+  - '**/.*rc'
+  - '**/.*.json'
+
+dependencies:
+  - 'package.json'
+  - 'package-lock.json'
+  - 'requirements.txt'
+  - 'Pipfile'
+  - 'Pipfile.lock'
+  - 'go.mod'
+  - 'go.sum'
+  - 'Gemfile'
+  - 'Gemfile.lock'
+
+tests:
+  - '**/*.test.*'
+  - '**/*.spec.*'
+  - '**/test/**'
+  - '**/tests/**'
+  - '**/__tests__/**'
