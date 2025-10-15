@@ -75,8 +75,61 @@ body {
   color: #505050;
 }
 
+.panel__header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.panel__header-row .panel__header {
+  margin-bottom: 0;
+}
+
 .panel__header--accent {
   color: #3f3fb0;
+}
+
+.panel__emoji-toggle {
+  border: 1px solid #d0d0e6;
+  background: #ffffff;
+  border-radius: 999px;
+  padding: 0.45rem 1.1rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #4d4d73;
+  cursor: pointer;
+}
+
+.panel__emoji-toggle:hover {
+  transform: translateY(-1px);
+}
+
+.panel__emoji-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(104, 104, 255, 0.3);
+}
+
+.panel__emoji-toggle[aria-expanded="true"] {
+  border-color: #7b7bf8;
+  background: #eef0ff;
+}
+
+.panel__emoji-picker {
+  margin-top: 1rem;
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.16);
+  overflow: hidden;
+  max-height: 320px;
+  width: 100%;
+}
+
+.panel__emoji-picker[hidden] {
+  display: none !important;
 }
 
 /* === TEXTAREA === */

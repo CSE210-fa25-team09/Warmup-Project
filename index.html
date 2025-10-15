@@ -15,7 +15,19 @@
 
       <section class="panels">
         <article class="panel panel--input">
-          <h2 class="panel__header">Emoji</h2>
+          <div class="panel__header-row">
+            <h2 class="panel__header">Emoji</h2>
+            <button
+              id="emoji-toggle"
+              class="panel__emoji-toggle"
+              type="button"
+              aria-label="Toggle emoji picker"
+              aria-expanded="false"
+              aria-controls="emoji-picker"
+            >
+              Pick Emoji ▼
+            </button>
+          </div>
           <textarea
             id="emoji-input"
             class="panel__textarea"
@@ -23,6 +35,11 @@
             aria-label="Enter emoji to translate"
             autofocus
           ></textarea>
+          <emoji-picker
+            id="emoji-picker"
+            class="panel__emoji-picker"
+            hidden
+          ></emoji-picker>
         </article>
 
         <div class="panel__divider" aria-hidden="true">
@@ -69,5 +86,9 @@
       </footer>
     </main>
     <script src="script.js"></script>
+    <script
+      type="module"
+      src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"
+    ></script>
   </body>
 </html>

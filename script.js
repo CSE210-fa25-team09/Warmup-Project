@@ -2,6 +2,8 @@ const input = document.querySelector("#emoji-input");
 const outputPanel = document.querySelector("#translation-output");
 const speakButton = document.querySelector("#speak-button");
 const copyButton = document.querySelector("#copy-button");
+const emojiToggle = document.querySelector("#emoji-toggle");
+const emojiPicker = document.querySelector("#emoji-picker");
 const synth = window.speechSynthesis;
 
 // Dummy translation function; replace with actual logic
@@ -85,6 +87,57 @@ const copyTranslation = async () => {
 
 if (copyButton) {
   copyButton.addEventListener("click", copyTranslation);
+}
+
+const setEmojiPickerVisibility = (isVisible) => {
+  if (!emojiPicker || !emojiToggle) return;
+
+  if (isVisible) {
+    emojiPicker.removeAttribute("hidden");
+  } else {
+    emojiPicker.setAttribute("hidden", "");
+  }
+
+  emojiToggle.setAttribute("aria-expanded", String(isVisible));
+  emojiToggle.innerHTML = isVisible ? "Pick Emoji ▲" : "Pick Emoji ▼";
+};
+
+if (emojiToggle && emojiPicker) {
+  emojiToggle.addEventListener("click", () => {
+    const isHidden = emojiPicker.hasAttribute("hidden");
+    setEmojiPickerVisibility(isHidden);
+    if (emojiPicker.focus && isHidden) {
+      emojiPicker.focus();
+    }
+  });
+  setEmojiPickerVisibility(!emojiPicker.hasAttribute("hidden"));
+}
+
+const insertEmojiAtCursor = (emoji) => {
+  if (!input) return;
+
+  const start = input.selectionStart ?? input.value.length;
+  const end = input.selectionEnd ?? start;
+  const before = input.value.slice(0, start);
+  const after = input.value.slice(end);
+  input.value = `${before}${emoji}${after}`;
+
+  const cursorPosition = start + emoji.length;
+  input.focus();
+  if (input.setSelectionRange) {
+    input.setSelectionRange(cursorPosition, cursorPosition);
+  }
+
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+};
+
+if (emojiPicker) {
+  emojiPicker.addEventListener("emoji-click", (event) => {
+    const emoji = event.detail?.unicode;
+    if (!emoji) return;
+
+    insertEmojiAtCursor(emoji);
+  });
 }
 
 input.addEventListener("input", updateTranslation);
