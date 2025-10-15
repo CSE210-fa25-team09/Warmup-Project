@@ -1,3 +1,5 @@
+import { router } from "./translators/router.js";
+
 const input = document.querySelector("#emoji-input");
 const outputPanel = document.querySelector("#translation-output");
 const speakButton = document.querySelector("#speak-button");
@@ -5,9 +7,6 @@ const copyButton = document.querySelector("#copy-button");
 const emojiToggle = document.querySelector("#emoji-toggle");
 const emojiPicker = document.querySelector("#emoji-picker");
 const synth = window.speechSynthesis;
-
-// Dummy translation function; replace with actual logic
-const translateEmoji = value => (value ? value.trimStart() : "");
 
 const toggleActionButtons = (enabled, text = "") => {
   const safeText = enabled ? text : "";
@@ -37,7 +36,7 @@ const updateTranslation = () => {
     return;
   }
 
-  const translation = translateEmoji(value);
+  const translation = router.translateEmoji(value);
   const renderedText = translation || value;
 
   outputPanel.textContent = renderedText;
