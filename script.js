@@ -6,8 +6,57 @@ const emojiToggle = document.querySelector("#emoji-toggle");
 const emojiPicker = document.querySelector("#emoji-picker");
 const synth = window.speechSynthesis;
 
-// Dummy translation function; replace with actual logic
-const translateEmoji = value => (value ? value.trimStart() : "");
+/* ================================
+   Emoji name lookup (cached)
+   ================================ */
+const _emojiCache = new Map();
+
+async function getEmojiName(emojiChar) {
+  if (!emojiChar) return "";
+  if (_emojiCache.has(emojiChar)) return _emojiCache.get(emojiChar);
+
+  const apiKey = "6477cadc3994ded39b79915704aa924596dd695b"; 
+  const url = `https://emoji-api.com/emojis?search=${encodeURIComponent(emojiChar)}&access_key=${apiKey}`;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+
+    const name =
+      (Array.isArray(data) && data[0] && data[0].unicodeName) ||
+      `No name found for "${emojiChar}"`;
+
+    _emojiCache.set(emojiChar, name);
+    const cleanName = name.replace(/^E\d+(\.\d+)?\s*/, "").trim();
+    return cleanName;
+  } catch (error) {
+    console.error("Error fetching emoji name:", error);
+    return "Failed to fetch emoji name.";
+  }
+}
+
+/* ================================
+   UI helpers
+   ================================ */
+
+async function getEmojiNames(str) {
+  const graphemes = Array.from(str).filter(g => g.trim() !== ""); // ignore spaces/newlines
+
+  const results = await Promise.all(
+    graphemes.map(async (g) => {
+      const name = await getEmojiName(g);
+      // if API misses it, fall back to the emoji itself
+      const clean = String(name || "").replace(/^E\d+(\.\d+)?\s*/, "").trim();
+      return clean && !/^No name found/i.test(clean) && !/^Failed/i.test(clean)
+        ? clean
+        : g;
+    })
+  );
+
+  return results.join(" ");
+}
+
 
 const toggleActionButtons = (enabled, text = "") => {
   const safeText = enabled ? text : "";
@@ -28,7 +77,7 @@ const toggleActionButtons = (enabled, text = "") => {
   }
 };
 
-const updateTranslation = () => {
+const updateTranslation = async () => {
   const value = input.value.trim();
   if (!value) {
     outputPanel.textContent = "Translation";
@@ -37,13 +86,15 @@ const updateTranslation = () => {
     return;
   }
 
-  const translation = translateEmoji(value);
-  const renderedText = translation || value;
+  outputPanel.textContent = "Translating...";
+  outputPanel.classList.remove("panel__output-placeholder");
+
+  const renderedText = await getEmojiNames(value);
 
   outputPanel.textContent = renderedText;
-  outputPanel.classList.remove("panel__output-placeholder");
   toggleActionButtons(true, renderedText);
 };
+
 
 const speakTranslation = () => {
   if (!synth) return;
@@ -133,12 +184,20 @@ const insertEmojiAtCursor = (emoji) => {
 
 if (emojiPicker) {
   emojiPicker.addEventListener("emoji-click", (event) => {
-    const emoji = event.detail?.unicode;
+    // The picker provides an object; we need the unicode string
+    const emoji =
+      event.detail?.unicode ||
+      event.detail?.emoji?.unicode ||
+      event.detail?.emoji ||
+      "";
     if (!emoji) return;
 
     insertEmojiAtCursor(emoji);
   });
 }
 
-input.addEventListener("input", updateTranslation);
+input.addEventListener("input", () => {
+  // debounce lightly if desired; for now just call
+  updateTranslation();
+});
 updateTranslation();
