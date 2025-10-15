@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Emoji Translator</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
+    <script
+      type="module"
+      src="https://cdn.jsdelivr.net/npm/emoji-picker-element/index.js"
+    ></script>
+  </head>
+  <body>
+    <main class="translator">
+      <header class="translator__header">
+        <h1>Emoji Translator</h1>
+        <p class="translator__subtitle">Group 9 Runtime Terror</p>
+      </header>
+
+      <section class="panels">
+        <article class="panel panel--input">
+          <div class="panel__header-row">
+            <h2 class="panel__header">Emoji</h2>
+            <button
+              id="emoji-toggle"
+              class="panel__emoji-toggle"
+              type="button"
+              aria-label="Toggle emoji picker"
+              aria-expanded="false"
+              aria-controls="emoji-picker"
+            >
+              Pick Emoji ▼
+            </button>
+          </div>
+          <textarea
+            id="emoji-input"
+            class="panel__textarea"
+            placeholder="Enter emoji"
+            aria-label="Enter emoji to translate"
+            autofocus
+          ></textarea>
+          <emoji-picker
+            id="emoji-picker"
+            class="panel__emoji-picker light"
+            hidden
+          ></emoji-picker>
+        </article>
+
+        <div class="panel__divider" aria-hidden="true">
+          <button
+            id="swap-button"
+            class="swap-button"
+            aria-label="Emoji translates to English"
+          >
+            →
+          </button>
+        </div>
+
+        <article class="panel panel--output">
+          <h2 class="panel__header panel__header--accent">English</h2>
+          <p id="translation-output" class="panel__output" aria-live="polite">
+            Translation
+          </p>
+          <div class="panel__output-actions">
+            <button
+              id="speak-button"
+              class="panel__speak-button"
+              type="button"
+              aria-label="Speak translation"
+            >
+              🔊
+            </button>
+            <button
+              id="copy-button"
+              class="panel__speak-button"
+              type="button"
+              aria-label="Copy translation"
+            >
+              📋
+            </button>
+          </div>
+        </article>
+      </section>
+
+      <footer class="translator__footer">
+        <strong>Created by:</strong> Runtime Terror <br />
+        Xiongyi Cai, Elaine Chao, Andrew Zhou, Manav, Hayden Kwok, Guangqi
+        Jiang, Jason Zhu, Jerry Thomas John, Peter Tu
+      </footer>
+    </main>
+  </body>
+</html>
