@@ -4,11 +4,11 @@ import { llmTranslator } from "./llmTranslator.js";
 let translator = llmTranslator;
 
 const getTranslator = () => {
-  return translator;
+    return translator;
 }
 
 const translatorFallback = () => {
-  translator = fallbackTranslator;
+    translator = fallbackTranslator;
 }
 
 const translateEmoji = (value) => {
