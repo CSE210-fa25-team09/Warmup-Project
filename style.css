@@ -68,19 +68,14 @@ body {
 
 /* === PANEL HEADER === */
 .panel__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  margin-top: 0;
   margin-bottom: 1.5rem;
-}
-
-.panel__label {
   font-size: 0.95rem;
   font-weight: 500;
   color: #505050;
 }
 
-.panel__label--accent {
+.panel__header--accent {
   color: #3f3fb0;
 }
 
@@ -129,13 +124,14 @@ body {
   color: #202020;
   background: transparent;
   border: none;
+  margin: 0;
 }
 
 .panel__output-placeholder {
   color: #9090a8;
 }
 
-/* === SPEAK BUTTON === */
+/* === SPEAK/COPY BUTTONS === */
 .panel__output-actions {
   display: flex;
   align-items: center;

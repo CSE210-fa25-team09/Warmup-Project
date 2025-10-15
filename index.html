@@ -12,11 +12,10 @@
         <h1>Emoji Translator</h1>
         <p class="translator__subtitle">Group 9 Runtime Terror</p>
       </header>
+
       <section class="panels">
         <article class="panel panel--input">
-          <div class="panel__header">
-            <span class="panel__label">Emoji</span>
-          </div>
+          <h2 class="panel__header">Emoji</h2>
           <textarea
             id="emoji-input"
             class="panel__textarea"
@@ -25,23 +24,23 @@
             autofocus
           ></textarea>
         </article>
+
         <div class="panel__divider" aria-hidden="true">
-          <div
+          <button
             id="swap-button"
             class="swap-button"
             role="img"
             aria-label="Emoji translates to English"
           >
             →
-          </div>
+          </button>
         </div>
+
         <article class="panel panel--output">
-          <div class="panel__header">
-            <span class="panel__label panel__label--accent">English</span>
-          </div>
-          <div id="translation-output" class="panel__output" aria-live="polite">
+          <h2 class="panel__header panel__header--accent">English</h2>
+          <p id="translation-output" class="panel__output" aria-live="polite">
             Translation
-          </div>
+          </p>
           <div class="panel__output-actions">
             <button
               id="speak-button"
@@ -62,6 +61,7 @@
           </div>
         </article>
       </section>
+
       <footer class="translator__footer">
         <strong>Created by:</strong> Runtime Terror <br />
         Xiongyi Cai, Elaine Chao, Andrew Zhou, Manav, Hayden Kwok, Guangqi
