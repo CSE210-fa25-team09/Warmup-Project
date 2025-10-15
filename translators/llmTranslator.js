@@ -1,27 +1,13 @@
+import fs from 'fs'
+import path from 'path'
 import ollama from 'ollama'
 
 const llmCache = new Map();
-const systemPrompt = `You are a specialized emoji-to-sentence translator. Your task is to interpret a sequence of emojis and convert it into a single, grammatically correct, and contextually appropriate English sentence.
-Imagine you are helping someone who is not fluent in emoji-speak understand a message.
 
-**## Core Instructions**
-1. Holistic Interpretation: Analyze the entire string of emojis together, as their combined meaning is often different from their individual definitions.
-2. Infer Intent: Focus on the underlying emotion, action, or idea being conveyed.
-3. Natural Language Output: Your output must be a single, natural-sounding sentence. Do not output a description of the emojis or a list of their names.
-
-**## Examples**
-input:🔥🏆💪
-output: That’s awesome, crushed it!
-
-input:😴📚☕
-output: Tired from studying and needs coffee.
-
-input:💔😢
-output: Feeling heartbroken and really sad.
-
-input:😂😂😂
-output: Laughing really hard.`
-
+const systemPrompt = fs.readFileSync(
+  path.resolve('./translators/emojiPrompt.md'),
+  'utf-8'
+);
 
 const config = {
     model: 'gemma3:1b',
