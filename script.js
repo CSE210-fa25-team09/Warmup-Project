@@ -17,32 +17,28 @@ const backendName = "https://translate_backend.binthere.space/api/translate"; //
    Local fallback: Top ~100 emojis
    ================================ */
 
-let FALLBACK_EMOJI_MAP = new Map();
 
-(async function loadFallback() {
-  try {
-    const res = await fetch('./fallback-emojis.json', { cache: 'no-store' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const arr = await res.json();
-    FALLBACK_EMOJI_MAP = new Map(arr);
-    console.log(`Loaded ${FALLBACK_EMOJI_MAP.size} fallback emojis`);
-  } catch (err) {
-    console.warn('Could not load fallback-emojis.json; continuing without seeded list.', err);
-  }
-})();
+const mod = await import("./fallback.json", { with: { type: "json" } });
+const FALLBACK_EMOJI_MAP = new Map(mod.default);
+
 
 
 const _emojiCache = new Map();
 
+const emojiRegex = /\p{Extended_Pictographic}/u;
+
 async function getEmojiName(emojiChar) {
   if (!emojiChar) return "";
+  if (!emojiRegex.test(emojiChar)) return emojiChar;
 
   // 1) Cache check
   if (_emojiCache.has(emojiChar)) return _emojiCache.get(emojiChar);
 
   // 2) Try API first (fresher than seeded list)
   const apiKey = "6477cadc3994ded39b79915704aa924596dd695b"; // don't commit a real key
-  const url = `https://emoji-api.com/emojis?search=${encodeURIComponent(emojiChar)}&access_key=${apiKey}`;
+  const url = `https://emoji-api.com/emojis?search=${encodeURIComponent(
+    emojiChar
+  )}&access_key=${apiKey}`;
 
   try {
     const res = await fetch(url);
@@ -64,7 +60,7 @@ async function getEmojiName(emojiChar) {
     _emojiCache.set(emojiChar, fallback);
     return fallback;
   } catch (err) {
-    console.error('Emoji API failed; using fallback if available.', err);
+    console.error("Emoji API failed; using fallback if available.", err);
     const fallback = FALLBACK_EMOJI_MAP.get(emojiChar) || emojiChar;
     _emojiCache.set(emojiChar, fallback);
     return fallback;
@@ -75,23 +71,16 @@ async function getEmojiName(emojiChar) {
    UI helpers
    ================================ */
 
-async function getEmojiNames(str) {
-  const graphemes = Array.from(str).filter(g => g.trim() !== ""); // ignore spaces/newlines
+async function translateMixedPreserve(text) {
+  const graphemes = Array.from(text);
 
-  const results = await Promise.all(
-    graphemes.map(async (g) => {
-      const name = await getEmojiName(g);
-      // if API misses it, fall back to the emoji itself
-      const clean = String(name || "").replace(/^E\d+(\.\d+)?\s*/, "").trim();
-      return clean && !/^No name found/i.test(clean) && !/^Failed/i.test(clean)
-        ? clean
-        : g;
-    })
+  const parts = await Promise.all(
+    graphemes.map(async (g) =>
+      emojiRegex.test(g) ? ` ${await getEmojiName(g)} ` : g
+    )
   );
-
-  return results.join(" ");
+  return parts.join("");
 }
-
 
 const toggleActionButtons = (enabled, text = "") => {
   const safeText = enabled ? text : "";
@@ -99,7 +88,7 @@ const toggleActionButtons = (enabled, text = "") => {
   if (speakButton) {
     if (!synth) {
       speakButton.disabled = true;
-      speakButton.dataset.text = ""; 
+      speakButton.dataset.text = "";
     } else {
       speakButton.disabled = !enabled;
       speakButton.dataset.text = safeText;
@@ -113,8 +102,8 @@ const toggleActionButtons = (enabled, text = "") => {
 };
 
 const updateTranslation = async () => {
-  const value = input.value.trim();
-  if (!value) {
+  const value = input.value;
+  if (!value || value.length === 0) {
     outputPanel.textContent = "Translation";
     outputPanel.classList.add("panel__output-placeholder");
     toggleActionButtons(false);
@@ -140,6 +129,7 @@ const updateTranslation = async () => {
   outputPanel.textContent = renderedText;
   toggleActionButtons(true, renderedText);
 };
+
 
 
 const speakTranslation = () => {
