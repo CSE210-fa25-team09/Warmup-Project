@@ -14,25 +14,19 @@ const synth = window.speechSynthesis;
    Local fallback: Top ~100 emojis
    ================================ */
 
-let FALLBACK_EMOJI_MAP = new Map();
 
-(async function loadFallback() {
-  try {
-    const res = await fetch('./fallback-emojis.json', { cache: 'no-store' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const arr = await res.json();
-    FALLBACK_EMOJI_MAP = new Map(arr);
-    console.log(`Loaded ${FALLBACK_EMOJI_MAP.size} fallback emojis`);
-  } catch (err) {
-    console.warn('Could not load fallback-emojis.json; continuing without seeded list.', err);
-  }
-})();
+const mod = await import("./fallback.json", { with: { type: "json" } });
+const FALLBACK_EMOJI_MAP = new Map(mod.default);
+
 
 
 const _emojiCache = new Map();
 
+const emojiRegex = /\p{Extended_Pictographic}/u;
+
 async function getEmojiName(emojiChar) {
   if (!emojiChar) return "";
+  if (!emojiRegex.test(emojiChar)) return emojiChar;
 
   // 1) Cache check
   if (_emojiCache.has(emojiChar)) return _emojiCache.get(emojiChar);
@@ -61,12 +55,13 @@ async function getEmojiName(emojiChar) {
     _emojiCache.set(emojiChar, fallback);
     return fallback;
   } catch (err) {
-    console.error('Emoji API failed; using fallback if available.', err);
+    console.error("Emoji API failed; using fallback if available.", err);
     const fallback = FALLBACK_EMOJI_MAP.get(emojiChar) || emojiChar;
     _emojiCache.set(emojiChar, fallback);
     return fallback;
   }
 }
+
 
 /* ================================
    UI helpers
@@ -87,6 +82,15 @@ async function getEmojiNames(str) {
   );
 
   return results.join(" ");
+}
+
+async function translateMixedPreserve(text) {
+  const graphemes = Array.from(text);
+
+  const parts = await Promise.all(
+    graphemes.map(g => emojiRegex.test(g) ? getEmojiName(g) : g)
+  );
+  return parts.join("");
 }
 
 
@@ -110,8 +114,8 @@ const toggleActionButtons = (enabled, text = "") => {
 };
 
 const updateTranslation = async () => {
-  const value = input.value.trim();
-  if (!value) {
+  const value = input.value;
+  if (!value || value.length === 0) {
     outputPanel.textContent = "Translation";
     outputPanel.classList.add("panel__output-placeholder");
     toggleActionButtons(false);
@@ -121,11 +125,12 @@ const updateTranslation = async () => {
   outputPanel.textContent = "Translating...";
   outputPanel.classList.remove("panel__output-placeholder");
 
-  const renderedText = await getEmojiNames(value);
+  const renderedText = await translateMixedPreserve(value);
 
   outputPanel.textContent = renderedText;
   toggleActionButtons(true, renderedText);
 };
+
 
 
 const speakTranslation = () => {
