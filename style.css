@@ -12,6 +12,11 @@ body {
   color: #3b3b3b;
 }
 
+:root {
+  --panel-max-height: clamp(22rem, calc(100vh - 10rem), 38rem);
+  --panel-scroll-max: max(12rem, calc(var(--panel-max-height) - 8rem));
+}
+
 /* === LAYOUT ROOT === */
 .translator {
   min-height: 100vh;
@@ -59,9 +64,12 @@ body {
   flex-direction: column;
   gap: 1rem;
   min-height: 340px;
+  max-height: var(--panel-max-height);
   padding: 1.5rem;
   border-radius: 20px;
   background-color: #fafafb;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .panel--output {
@@ -138,7 +146,10 @@ body {
 
 /* === TEXTAREA === */
 .panel__textarea {
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 8rem;
+  max-height: var(--panel-scroll-max);
+  overflow-y: auto;
   resize: none;
   font-size: 1.5rem;
   border: none;
@@ -174,7 +185,7 @@ body {
 
 /* === OUTPUT PANEL === */
 .panel__output {
-  flex: 1;
+  flex: 1 1 auto;
   padding: 0.2rem 0.4rem;
   font-family: monospace;
   font-size: 1.5rem;
@@ -183,7 +194,9 @@ body {
   border: none;
   margin: 0;
   overflow-wrap: anywhere;
-  margin-bottom: 1rem;
+  max-height: var(--panel-scroll-max);
+  min-height: 8rem;
+  overflow-y: auto;
 }
 
 .panel__output-placeholder {
@@ -252,6 +265,10 @@ body {
 }
 
 @media (max-width: 640px) {
+  :root {
+    --panel-max-height: clamp(20rem, calc(100vh - 8rem), 30rem);
+  }
+
   .panels {
     padding: 0.75rem;
   }
@@ -263,7 +280,7 @@ body {
   }
 
   .panel__textarea {
-    min-height: 100px;
+    min-height: 8rem;
   }
 
   .panel__emoji-picker {
