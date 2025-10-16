@@ -7,7 +7,7 @@ const emojiPicker = document.querySelector("#emoji-picker");
 const synth = window.speechSynthesis;
 
 
-const useLLM = true; // set to false to use local fallback
+let useLLM = true; // set to false to use local fallback
 const backendName = "Yuezhexuans-MacBook-Pro.local:3009"; // adjust as needed
 /* ================================
    Emoji name lookup (cached)
@@ -133,6 +133,7 @@ const updateTranslation = async () => {
       console.log('Translation result:', renderedText);
     } catch (error) {
       console.error("Error translating text:", error);
+      useLLM = false; // disable LLM for next time
       renderedText = await getEmojiNames(value);
     }
   }
@@ -252,10 +253,11 @@ const llmTranslate = async (value) => {
     headers: {
       "Content-Type": "application/json"
     },
-    body: body
+    body: body,
+    signal: AbortSignal.timeout(3000) // 3s timeout
   });
 
-  if (!response.ok) {
+  if (!response || !response.ok) {
     console.error("Failed to translate:", response.statusText);
     throw new Error(`Translation API error: ${response.statusText}`);
   }
