@@ -58,7 +58,18 @@
         </div>
 
         <article class="panel panel--output">
-          <h2 class="panel__header panel__header--accent">English</h2>
+          <div class="panel__header-row">
+            <h2 class="panel__header panel__header--accent">English</h2>
+            <button
+              id="llm-toggle"
+              class="panel__emoji-toggle"
+              type="button"
+              aria-label="Toggle LLM translation"
+              aria-pressed="false"
+            >
+              Use LLM 🤖
+            </button>
+          </div>
           <p id="translation-output" class="panel__output" aria-live="polite">
             Translation
           </p>
