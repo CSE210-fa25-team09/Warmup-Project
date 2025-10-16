@@ -1,0 +1,25 @@
+# backend node modules
+llm_backend/node_modules
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Optional npm cache folder
+.npm
+
+# dotenv environment variables
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build outputs (if any)
+dist/
+build/
+
+# Ollama temporary files (if any)
+*.db
+*.cache

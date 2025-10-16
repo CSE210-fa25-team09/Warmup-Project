@@ -6,6 +6,9 @@ const emojiToggle = document.querySelector("#emoji-toggle");
 const emojiPicker = document.querySelector("#emoji-picker");
 const synth = window.speechSynthesis;
 
+
+let useLLM = true; // set to false to use local fallback
+const backendName = "https://translate_backend.binthere.space/api/translate"; // adjust as needed
 /* ================================
    Emoji name lookup (cached)
    ================================ */
@@ -110,7 +113,18 @@ const updateTranslation = async () => {
   outputPanel.textContent = "Translating...";
   outputPanel.classList.remove("panel__output-placeholder");
 
-  const renderedText = await translateMixedPreserve(value);
+  let renderedText = "";
+  if (!useLLM) {
+    renderedText = await getEmojiNames(value);
+  } else {
+    try {
+      renderedText = await llmTranslate(value);
+      console.log('Translation result:', renderedText);
+    } catch (error) {
+      console.error("Error translating text:", error);
+      renderedText = await getEmojiNames(value);
+    }
+  }
 
   outputPanel.textContent = renderedText;
   toggleActionButtons(true, renderedText);
@@ -216,6 +230,35 @@ if (emojiPicker) {
 
     insertEmojiAtCursor(emoji);
   });
+}
+
+const llmTranslate = async (value) => {
+  //Yuezhexuans-MacBook-Pro.local:3009/api/translate
+  // body: {text: value, model: "llama3.2"}
+  const body = JSON.stringify({ text: value, model: "gemma3:1b" });
+  console.log("Request body:", body);
+  const response = await fetch("https://translate_backend.binthere.space/api/translate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: body,
+    signal: AbortSignal.timeout(3000) // 3s timeout
+  });
+
+  if (!response || !response.ok) {
+    console.error("Failed to translate:", response.statusText);
+    if (response.status >= 500) {
+      useLLM = false; // disable LLM for next time
+    }
+    throw new Error(`Translation API error: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  if (!data || data.translation === undefined) {
+    throw new Error("Invalid response from translation API");
+  }
+  return data.translation;
 }
 
 input.addEventListener("input", () => {
