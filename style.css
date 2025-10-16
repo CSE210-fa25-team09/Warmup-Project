@@ -130,6 +130,12 @@ body {
   background: #eef0ff;
 }
 
+.panel__emoji-toggle[aria-pressed="true"] {
+  border-color: #7b7bf8;
+  background: #eef0ff;
+  color: #3f3fb0;
+}
+
 .panel__emoji-picker {
   margin-top: 1rem;
   border-radius: 16px;

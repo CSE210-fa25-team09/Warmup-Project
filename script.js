@@ -4,7 +4,11 @@ const speakButton = document.querySelector("#speak-button");
 const copyButton = document.querySelector("#copy-button");
 const emojiToggle = document.querySelector("#emoji-toggle");
 const emojiPicker = document.querySelector("#emoji-picker");
+const llmToggle = document.querySelector("#llm-toggle");
 const synth = window.speechSynthesis;
+
+// LLM translation state
+let useLLMTranslation = false;
 
 /* ================================
    Emoji name lookup (cached)
@@ -69,6 +73,55 @@ async function getEmojiName(emojiChar) {
 }
 
 /* ================================
+   Hugging Face LLM Translation
+   ================================ */
+
+async function query(data) {
+  const response = await fetch(
+    "https://router.huggingface.co/v1/chat/completions",
+    {
+      headers: {
+        Authorization: `Bearer ${process.env.HF_TOKEN}`, // Replace with your HF token
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+      body: JSON.stringify(data),
+    }
+  );
+  const result = await response.json();
+  return result;
+}
+
+async function translateWithLLM(emojiText) {
+  if (!emojiText) return "";
+
+  try {
+    const result = await query({ 
+      messages: [
+        {
+          role: "user",
+          content: `Briefly describe these emojis in one sentence: ${emojiText}`,
+        },
+      ],
+      model: "google/gemma-2-2b-it:nebius",
+    });
+
+    // Extract the generated text from the response
+    if (result.choices && result.choices[0] && result.choices[0].message && result.choices[0].message.content) {
+      const translation = result.choices[0].message.content.trim();
+      return translation || `Creative interpretation of: ${emojiText}`;
+    }
+    
+    // Fallback if API doesn't return expected format
+    return `Creative interpretation of: ${emojiText}`;
+  } catch (error) {
+    console.error('Hugging Face API error:', error);
+    // Fallback to simple creative description
+    return `Creative description: ${emojiText} (LLM temporarily unavailable)`;
+  }
+}
+
+/* ================================
    UI helpers
    ================================ */
 
@@ -121,7 +174,15 @@ const updateTranslation = async () => {
   outputPanel.textContent = "Translating...";
   outputPanel.classList.remove("panel__output-placeholder");
 
-  const renderedText = await getEmojiNames(value);
+  let renderedText;
+  
+  if (useLLMTranslation) {
+    // Use LLM translation for creative interpretation
+    renderedText = await translateWithLLM(value);
+  } else {
+    // Use regular emoji name lookup
+    renderedText = await getEmojiNames(value);
+  }
 
   outputPanel.textContent = renderedText;
   toggleActionButtons(true, renderedText);
@@ -225,6 +286,23 @@ if (emojiPicker) {
     if (!emoji) return;
 
     insertEmojiAtCursor(emoji);
+  });
+}
+
+/* ================================
+   LLM Toggle functionality
+   ================================ */
+
+if (llmToggle) {
+  llmToggle.addEventListener("click", () => {
+    useLLMTranslation = !useLLMTranslation;
+    llmToggle.setAttribute("aria-pressed", String(useLLMTranslation));
+    llmToggle.innerHTML = useLLMTranslation ? "Use Regular 📝" : "Use LLM 🤖";
+    
+    // Re-translate current input with new mode
+    if (input.value.trim()) {
+      updateTranslation();
+    }
   });
 }
 
