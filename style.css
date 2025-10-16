@@ -12,6 +12,11 @@ body {
   color: #3b3b3b;
 }
 
+:root {
+  --panel-max-height: clamp(22rem, calc(100vh - 10rem), 38rem);
+  --panel-scroll-max: max(12rem, calc(var(--panel-max-height) - 8rem));
+}
+
 /* === LAYOUT ROOT === */
 .translator {
   min-height: 100vh;
@@ -19,6 +24,7 @@ body {
   flex-direction: column;
   align-items: center;
   padding: 2rem 1rem 3rem;
+  box-sizing: border-box;
 }
 
 /* === HEADER === */
@@ -56,10 +62,14 @@ body {
 .panel {
   display: flex;
   flex-direction: column;
+  gap: 1rem;
   min-height: 340px;
+  max-height: var(--panel-max-height);
   padding: 1.5rem;
   border-radius: 20px;
   background-color: #fafafb;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .panel--output {
@@ -103,6 +113,7 @@ body {
   justify-content: center;
   color: #4d4d73;
   cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
 }
 
 .panel__emoji-toggle:hover {
@@ -126,6 +137,7 @@ body {
   overflow: hidden;
   max-height: 320px;
   width: 100%;
+  background: #ffffff;
 }
 
 .panel__emoji-picker[hidden] {
@@ -134,7 +146,10 @@ body {
 
 /* === TEXTAREA === */
 .panel__textarea {
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 8rem;
+  max-height: var(--panel-scroll-max);
+  overflow-y: auto;
   resize: none;
   font-size: 1.5rem;
   border: none;
@@ -170,7 +185,7 @@ body {
 
 /* === OUTPUT PANEL === */
 .panel__output {
-  flex: 1;
+  flex: 1 1 auto;
   padding: 0.2rem 0.4rem;
   font-family: monospace;
   font-size: 1.5rem;
@@ -178,6 +193,10 @@ body {
   background: transparent;
   border: none;
   margin: 0;
+  overflow-wrap: anywhere;
+  max-height: var(--panel-scroll-max);
+  min-height: 8rem;
+  overflow-y: auto;
 }
 
 .panel__output-placeholder {
@@ -219,7 +238,9 @@ body {
 
 /* === FOOTER === */
 .translator__footer {
-  position: fixed;
+  align-self: flex-end;
+  position: static;
+  margin-top: auto;
   bottom: 0.5rem;
   right: 0.5rem;
   padding: 0.5rem 1rem;
@@ -240,5 +261,46 @@ body {
 
   .swap-button {
     display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --panel-max-height: clamp(20rem, calc(100vh - 8rem), 30rem);
+  }
+
+  .panels {
+    padding: 0.75rem;
+  }
+
+  .panel {
+    min-height: auto;
+    padding: 1.25rem;
+    max-width: 85vw;
+  }
+
+  .panel__textarea {
+    min-height: 8rem;
+  }
+
+  .panel__emoji-picker {
+    max-height: 240px;
+  }
+
+  .translator {
+    padding-bottom: 0.5rem;
+  }
+
+  .panel__header-row {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .panel__emoji-toggle {
+    align-self: flex-start;
+  }
+
+  .translator__footer {
+    text-align: center;
   }
 }

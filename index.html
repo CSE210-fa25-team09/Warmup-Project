@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Emoji Translator</title>
     <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
+    <script
+      type="module"
+      src="https://cdn.jsdelivr.net/npm/emoji-picker-element/index.js"
+    ></script>
   </head>
   <body>
     <main class="translator">
@@ -37,7 +42,7 @@
           ></textarea>
           <emoji-picker
             id="emoji-picker"
-            class="panel__emoji-picker"
+            class="panel__emoji-picker light"
             hidden
           ></emoji-picker>
         </article>
@@ -46,7 +51,6 @@
           <button
             id="swap-button"
             class="swap-button"
-            role="img"
             aria-label="Emoji translates to English"
           >
             →
