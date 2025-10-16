@@ -1,5 +1,5 @@
 import express from 'express';
-import fs from 'fs'
+import fs from 'fs';
 import path from 'path'
 import ollama from 'ollama'
 
@@ -73,6 +73,16 @@ const checkCache = (value) => {
     }
     return null;
 }
+// Add CORS middleware to handle the issue
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Access-Control-Allow-Headers, Access-Control-Allow-Methods');
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+    }
+    next();
+});
 
 app.post('/api/translate', async (req, res) => {
     console.log('Received translation request:', req.body);
@@ -84,6 +94,7 @@ app.post('/api/translate', async (req, res) => {
     }
     try {
         const translation = await translateEmoji(text, model);
+        console.log('Translation result:', translation);
         res.json({ translation });
     } catch (error) {
         console.error('Error during translation:', error);

@@ -6,6 +6,9 @@ const emojiToggle = document.querySelector("#emoji-toggle");
 const emojiPicker = document.querySelector("#emoji-picker");
 const synth = window.speechSynthesis;
 
+
+const useLLM = true; // set to false to use local fallback
+const backendName = "Yuezhexuans-MacBook-Pro.local:3009"; // adjust as needed
 /* ================================
    Emoji name lookup (cached)
    ================================ */
@@ -121,7 +124,18 @@ const updateTranslation = async () => {
   outputPanel.textContent = "Translating...";
   outputPanel.classList.remove("panel__output-placeholder");
 
-  const renderedText = await getEmojiNames(value);
+  let renderedText = "";
+  if (!useLLM) {
+    renderedText = await getEmojiNames(value);
+  } else {
+    try {
+      renderedText = await llmTranslate(value);
+      console.log('Translation result:', renderedText);
+    } catch (error) {
+      console.error("Error translating text:", error);
+      renderedText = await getEmojiNames(value);
+    }
+  }
 
   outputPanel.textContent = renderedText;
   toggleActionButtons(true, renderedText);
@@ -226,6 +240,28 @@ if (emojiPicker) {
 
     insertEmojiAtCursor(emoji);
   });
+}
+
+const llmTranslate = async (value) => {
+  //Yuezhexuans-MacBook-Pro.local:3009/api/translate
+  // body: {text: value, model: "llama3.2"}
+  const body = JSON.stringify({ text: value, model: "llama3.2" });
+  console.log("Request body:", body);
+  const response = await fetch(`http://${backendName}/api/translate`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: body
+  });
+
+  if (!response.ok) {
+    console.error("Failed to translate:", response.statusText);
+    return "Translation failed";
+  }
+
+  const data = await response.json();
+  return data.translation;
 }
 
 input.addEventListener("input", () => {
