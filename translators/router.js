@@ -2,6 +2,7 @@ import { fallbackTranslator } from "./fallbackTranslator.js";
 import { llmTranslator } from "./llmTranslator.js";
 
 let translator = llmTranslator;
+let useLlm = true;
 
 const getTranslator = () => {
     return translator;
@@ -9,6 +10,12 @@ const getTranslator = () => {
 
 const translatorFallback = () => {
     translator = fallbackTranslator;
+}
+
+const toggleTranslator = () => {
+    useLlm = !useLlm;
+    translator = useLlm ? llmTranslator : fallbackTranslator;
+    return useLlm;
 }
 
 const translateEmoji = (value) => {
@@ -21,6 +28,6 @@ const translateEmoji = (value) => {
     }
 }
 
-const router = { getTranslator, translateEmoji };
+const router = { getTranslator, translateEmoji, toggleTranslator, isUsingLlm: () => useLlm };
 
 export { router };

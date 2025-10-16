@@ -6,6 +6,7 @@ const speakButton = document.querySelector("#speak-button");
 const copyButton = document.querySelector("#copy-button");
 const emojiToggle = document.querySelector("#emoji-toggle");
 const emojiPicker = document.querySelector("#emoji-picker");
+const llmToggle = document.querySelector("#llm-toggle");
 const synth = window.speechSynthesis;
 
 const toggleActionButtons = (enabled, text = "") => {
@@ -137,6 +138,19 @@ if (emojiPicker) {
 
     insertEmojiAtCursor(emoji);
   });
+}
+
+const toggleLlmTranslator = () => {
+  if (!llmToggle) return;
+  
+  const isUsingLlm = router.toggleTranslator();
+  llmToggle.textContent = isUsingLlm ? "LLM: ON" : "LLM: OFF";
+  llmToggle.setAttribute("aria-pressed", String(isUsingLlm));
+  updateTranslation();
+};
+
+if (llmToggle) {
+  llmToggle.addEventListener("click", toggleLlmTranslator);
 }
 
 input.addEventListener("input", updateTranslation);

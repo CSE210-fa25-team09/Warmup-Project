@@ -122,6 +122,35 @@ body {
   background: #eef0ff;
 }
 
+.panel__llm-toggle {
+  border: 1px solid #d0d0e6;
+  background: #ffffff;
+  border-radius: 999px;
+  padding: 0.45rem 1.1rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #4d4d73;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.panel__llm-toggle:hover {
+  transform: translateY(-1px);
+}
+
+.panel__llm-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(104, 104, 255, 0.3);
+}
+
+.panel__llm-toggle[aria-pressed="true"] {
+  border-color: #7b7bf8;
+  background: #eef0ff;
+}
+
 .panel__emoji-picker {
   margin-top: 1rem;
   border-radius: 16px;
