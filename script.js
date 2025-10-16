@@ -244,7 +244,7 @@ const llmTranslate = async (value) => {
       "Content-Type": "application/json"
     },
     body: body,
-    signal: AbortSignal.timeout(3000) // 3s timeout
+    signal: AbortSignal.timeout(10000) // 10s timeout
   });
 
   if (!response || !response.ok) {
