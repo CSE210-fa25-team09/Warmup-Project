@@ -33,7 +33,9 @@ async function getEmojiName(emojiChar) {
 
   // 2) Try API first (fresher than seeded list)
   const apiKey = "6477cadc3994ded39b79915704aa924596dd695b"; // don't commit a real key
-  const url = `https://emoji-api.com/emojis?search=${encodeURIComponent(emojiChar)}&access_key=${apiKey}`;
+  const url = `https://emoji-api.com/emojis?search=${encodeURIComponent(
+    emojiChar
+  )}&access_key=${apiKey}`;
 
   try {
     const res = await fetch(url);
@@ -62,37 +64,20 @@ async function getEmojiName(emojiChar) {
   }
 }
 
-
 /* ================================
    UI helpers
    ================================ */
-
-async function getEmojiNames(str) {
-  const graphemes = Array.from(str).filter(g => g.trim() !== ""); // ignore spaces/newlines
-
-  const results = await Promise.all(
-    graphemes.map(async (g) => {
-      const name = await getEmojiName(g);
-      // if API misses it, fall back to the emoji itself
-      const clean = String(name || "").replace(/^E\d+(\.\d+)?\s*/, "").trim();
-      return clean && !/^No name found/i.test(clean) && !/^Failed/i.test(clean)
-        ? clean
-        : g;
-    })
-  );
-
-  return results.join(" ");
-}
 
 async function translateMixedPreserve(text) {
   const graphemes = Array.from(text);
 
   const parts = await Promise.all(
-    graphemes.map(g => emojiRegex.test(g) ? getEmojiName(g) : g)
+    graphemes.map(async (g) =>
+      emojiRegex.test(g) ? ` ${await getEmojiName(g)} ` : g
+    )
   );
   return parts.join("");
 }
-
 
 const toggleActionButtons = (enabled, text = "") => {
   const safeText = enabled ? text : "";
@@ -100,7 +85,7 @@ const toggleActionButtons = (enabled, text = "") => {
   if (speakButton) {
     if (!synth) {
       speakButton.disabled = true;
-      speakButton.dataset.text = ""; 
+      speakButton.dataset.text = "";
     } else {
       speakButton.disabled = !enabled;
       speakButton.dataset.text = safeText;
