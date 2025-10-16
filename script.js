@@ -297,7 +297,7 @@ if (llmToggle) {
   llmToggle.addEventListener("click", () => {
     useLLMTranslation = !useLLMTranslation;
     llmToggle.setAttribute("aria-pressed", String(useLLMTranslation));
-    llmToggle.innerHTML = useLLMTranslation ? "Use Regular 📝" : "Use LLM 🤖";
+    llmToggle.innerHTML = useLLMTranslation ? "Use LLM 🤖" : "Use LLM 🤖";
     
     // Re-translate current input with new mode
     if (input.value.trim()) {
