@@ -26,14 +26,13 @@ const systemPrompt = fs.readFileSync(
 );
 
 const config = {
-    model: 'gemma3:1b',
     temperature: 0.0,
     top_p: 0.01,
     top_k: 1,
     seed: 42,
 };
 
-const translateEmoji = async (value) => {
+const translateEmoji = async (value, model) => {
     const cached = checkCache(value);
     if (cached) {
         return cached;
@@ -42,7 +41,7 @@ const translateEmoji = async (value) => {
 
 
     const llmResponse = await ollama.chat({
-        model: config.model,
+        model: model,
         messages: [
             {role: 'system', content: systemPrompt},
             {role:'user', content: value}
@@ -77,12 +76,14 @@ const checkCache = (value) => {
 
 app.post('/api/translate', async (req, res) => {
     console.log('Received translation request:', req.body);
-    const { text } = req.body.text;
+    const text = req.body.text;
+    const model = req.body.model || 'gemma3:1b';
+    console.log('Text to translate:', text);
     if (!text) {
         return res.status(400).json({ error: 'No text provided' });
     }
     try {
-        const translation = await translateEmoji(text);
+        const translation = await translateEmoji(text, model);
         res.json({ translation });
     } catch (error) {
         console.error('Error during translation:', error);
