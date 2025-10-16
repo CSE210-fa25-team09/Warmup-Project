@@ -79,6 +79,7 @@ async function translateMixedPreserve(text) {
       emojiRegex.test(g) ? ` ${await getEmojiName(g)} ` : g
     )
   );
+  console.log("translateMixedPreserve:", parts);
   return parts.join("");
 }
 
@@ -115,14 +116,14 @@ const updateTranslation = async () => {
 
   let renderedText = "";
   if (!useLLM) {
-    renderedText = await getEmojiNames(value);
+    renderedText = await translateMixedPreserve(value);
   } else {
     try {
       renderedText = await llmTranslate(value);
       console.log('Translation result:', renderedText);
     } catch (error) {
       console.error("Error translating text:", error);
-      renderedText = await getEmojiNames(value);
+      renderedText = await translateMixedPreserve(value);
     }
   }
 
