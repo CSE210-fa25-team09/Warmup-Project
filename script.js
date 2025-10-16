@@ -257,7 +257,7 @@ const llmTranslate = async (value) => {
 
   if (!response.ok) {
     console.error("Failed to translate:", response.statusText);
-    return "Translation failed";
+    throw new Error(`Translation API error: ${response.statusText}`);
   }
 
   const data = await response.json();

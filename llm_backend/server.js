@@ -63,6 +63,7 @@ const translateEmoji = async (value, model) => {
     // const result = "LLM Translation for: " + (value ? value.trimStart() : "" + llmResponse);
     const result = llmResponse.message?.content?.trim() || "";
     const translation = JSON.parse(result).translation || "";
+    console.log("result:", result);
     llmCache.set(value, translation);
     return translation;
 };
@@ -94,7 +95,9 @@ app.post('/api/translate', async (req, res) => {
     }
     try {
         const translation = await translateEmoji(text, model);
-        console.log('Translation result:', translation);
+        if (!translation) {
+            return res.status(500).json({ error: 'Translation failed' });
+        }
         res.json({ translation });
     } catch (error) {
         console.error('Error during translation:', error);
