@@ -8,7 +8,7 @@ const synth = window.speechSynthesis;
 
 
 let useLLM = true; // set to false to use local fallback
-const backendName = "Yuezhexuans-MacBook-Pro.local:3009"; // adjust as needed
+const backendName = ''; // adjust as needed
 /* ================================
    Emoji name lookup (cached)
    ================================ */
@@ -253,7 +253,7 @@ const llmTranslate = async (value) => {
       "Content-Type": "application/json"
     },
     body: body,
-    signal: AbortSignal.timeout(3000) // 3s timeout
+    signal: AbortSignal.timeout(60000) // 60s timeout
   });
 
   if (!response || !response.ok) {

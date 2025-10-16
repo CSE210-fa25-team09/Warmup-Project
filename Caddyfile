@@ -1,0 +1,16 @@
+:8080 {
+  encode gzip
+
+  route {
+    # match /api/* and proxy it to Node on 3000
+    @api path /api/*
+    reverse_proxy @api 127.0.0.1:{env.API_PORT}
+
+    # serve the frontend and SPA-fallback to index.html
+    handle {
+      root * /app/frontend
+      file_server
+      try_files {path} /index.html
+    }
+  }
+}

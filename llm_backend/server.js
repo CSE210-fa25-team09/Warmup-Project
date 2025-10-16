@@ -3,11 +3,15 @@ import fs from 'fs';
 import path from 'path'
 import ollama from 'ollama'
 
+process.env.OLLAMA_HOST = process.env.OLLAMA_HOST || 'http://127.0.0.1:11434';
+
 const app = express();
-const port = process.env.PORT || 3009;
+const port = process.env.PORT || 3000;
 const host = '0.0.0.0';
 
 app.use(express.json());
+
+app.get('/healthz', (req, res) => res.send('ok'));
 
 app.get('/api/hello', (req, res) => {
     console.log("body:", req.body);
