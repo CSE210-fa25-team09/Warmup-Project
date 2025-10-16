@@ -84,6 +84,15 @@ async function getEmojiNames(str) {
   return results.join(" ");
 }
 
+async function translateMixedPreserve(text) {
+  const graphemes = Array.from(text);
+
+  const parts = await Promise.all(
+    graphemes.map(g => emojiRegex.test(g) ? getEmojiName(g) : g)
+  );
+  return parts.join("");
+}
+
 
 const toggleActionButtons = (enabled, text = "") => {
   const safeText = enabled ? text : "";
@@ -105,8 +114,8 @@ const toggleActionButtons = (enabled, text = "") => {
 };
 
 const updateTranslation = async () => {
-  const value = input.value.trim();
-  if (!value) {
+  const value = input.value;
+  if (!value || value.length === 0) {
     outputPanel.textContent = "Translation";
     outputPanel.classList.add("panel__output-placeholder");
     toggleActionButtons(false);
@@ -116,11 +125,12 @@ const updateTranslation = async () => {
   outputPanel.textContent = "Translating...";
   outputPanel.classList.remove("panel__output-placeholder");
 
-  const renderedText = await getEmojiNames(value);
+  const renderedText = await translateMixedPreserve(value);
 
   outputPanel.textContent = renderedText;
   toggleActionButtons(true, renderedText);
 };
+
 
 
 const speakTranslation = () => {
