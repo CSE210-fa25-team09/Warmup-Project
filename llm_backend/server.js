@@ -96,7 +96,7 @@ app.post('/api/translate', async (req, res) => {
     try {
         const translation = await translateEmoji(text, model);
         if (!translation) {
-            return res.status(500).json({ error: 'Translation failed' });
+            return res.status(404).json({ error: 'Translation empty' });
         }
         res.json({ translation });
     } catch (error) {

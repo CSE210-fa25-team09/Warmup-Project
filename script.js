@@ -133,7 +133,6 @@ const updateTranslation = async () => {
       console.log('Translation result:', renderedText);
     } catch (error) {
       console.error("Error translating text:", error);
-      useLLM = false; // disable LLM for next time
       renderedText = await getEmojiNames(value);
     }
   }
@@ -259,10 +258,16 @@ const llmTranslate = async (value) => {
 
   if (!response || !response.ok) {
     console.error("Failed to translate:", response.statusText);
+    if (response.status >= 500) {
+      useLLM = false; // disable LLM for next time
+    }
     throw new Error(`Translation API error: ${response.statusText}`);
   }
 
   const data = await response.json();
+  if (!data || data.translation === undefined) {
+    throw new Error("Invalid response from translation API");
+  }
   return data.translation;
 }
 
