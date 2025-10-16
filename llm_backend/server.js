@@ -4,8 +4,7 @@ import path from 'path'
 import ollama from 'ollama'
 
 const app = express();
-const port = process.env.PORT || 3009;
-const host = '0.0.0.0';
+const port = process.env.PORT || 3001;
 
 app.use(express.json());
 
@@ -14,8 +13,8 @@ app.get('/api/hello', (req, res) => {
     res.send('Hello from the backend!');
 });
 
-app.listen(port, host, () => {
-    console.log(`Server is running at http://${host}:${port}`);
+app.listen(port, () => {
+    console.log(`Server is running at http://localhost:${port}`);
 });
 
 const llmCache = new Map();

@@ -8,7 +8,7 @@ const synth = window.speechSynthesis;
 
 
 let useLLM = true; // set to false to use local fallback
-const backendName = "Yuezhexuans-MacBook-Pro.local:3009"; // adjust as needed
+const backendName = "https://translate_backend.binthere.space/api/translate"; // adjust as needed
 /* ================================
    Emoji name lookup (cached)
    ================================ */
@@ -245,9 +245,9 @@ if (emojiPicker) {
 const llmTranslate = async (value) => {
   //Yuezhexuans-MacBook-Pro.local:3009/api/translate
   // body: {text: value, model: "llama3.2"}
-  const body = JSON.stringify({ text: value, model: "llama3.2" });
+  const body = JSON.stringify({ text: value, model: "gemma3:1b" });
   console.log("Request body:", body);
-  const response = await fetch(`http://${backendName}/api/translate`, {
+  const response = await fetch("https://translate_backend.binthere.space/api/translate", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
